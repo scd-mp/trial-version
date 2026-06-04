@@ -1008,7 +1008,7 @@ function normalizeName(n){if(!n)return"";return n.trim().toUpperCase().replace(/
 /* ═══════════════════════════════════════════
    EXCEL LOADER
    ═══════════════════════════════════════════ */
-const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwDcDsIJEwJ5W8SVWhgf0ppq-cjhEGhcL0TDilGfN5CbFE4-znY3on86cjxV-ZZmdaZ/exec";
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbxdgMAPW1SBAdof0JMh88JJOTzduRSTyYlzgMAA4IMznAkFSdmrSTZhaD7wK2fa7JMz/exec";
 function loadFromAppsScript(){
   const wrap=document.getElementById("load-progress-wrap"),prog=document.getElementById("load-progress"),
         lbl=document.getElementById("load-pct"),overlay=document.getElementById("load-overlay"),
@@ -1021,7 +1021,11 @@ function loadFromAppsScript(){
     .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();})
     .then(base64=>{
       clearInterval(timer);setP(90);
-      const bin=atob(base64),bytes=new Uint8Array(bin.length);
+      // Check if response is an error message rather than base64
+      if(base64.startsWith("ERROR:")||base64.startsWith("<!DOCTYPE")||base64.startsWith("<html")){
+        throw new Error("Script returned: "+base64.substring(0,200));
+      }
+      const bin=atob(base64.trim()),bytes=new Uint8Array(bin.length);
       for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
       const wb=XLSX.read(bytes,{type:"array",cellFormula:false,cellNF:false,cellText:false});
       console.log("Sheets:",wb.SheetNames);

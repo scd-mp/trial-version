@@ -1008,6 +1008,7 @@ function normalizeName(n){if(!n)return"";return n.trim().toUpperCase().replace(/
 /* ═══════════════════════════════════════════
    EXCEL LOADER
    ═══════════════════════════════════════════ */
+const SHEET_ID="1jq2At52pOWoBpDBf86lNSKRoLwOrpIjk-OLG-SmMeWI";
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbxdgMAPW1SBAdof0JMh88JJOTzduRSTyYlzgMAA4IMznAkFSdmrSTZhaD7wK2fa7JMz/exec";
 function loadFromAppsScript(){
   const wrap=document.getElementById("load-progress-wrap"),prog=document.getElementById("load-progress"),
@@ -1017,16 +1018,15 @@ function loadFromAppsScript(){
   wrap.style.display="block";overlay.classList.add("active");setP(0);
   document.getElementById("load-status").textContent="⏳ Fetching latest data…";
   let pct=5;const timer=setInterval(()=>{pct=Math.min(pct+5,80);setP(pct);},200);
-  fetch(APPS_SCRIPT_URL, {redirect:"follow"})
-    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();})
-    .then(base64=>{
+
+  // Use Google Sheets export URL directly — no CORS issues
+  const exportUrl=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx&id=${SHEET_ID}`;
+
+  fetch(exportUrl)
+    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status+". Make sure the sheet is shared as 'Anyone with the link can view'.");return r.arrayBuffer();})
+    .then(buffer=>{
       clearInterval(timer);setP(90);
-      // Check if response is an error message rather than base64
-      if(base64.startsWith("ERROR:")||base64.startsWith("<!DOCTYPE")||base64.startsWith("<html")){
-        throw new Error("Script returned: "+base64.substring(0,200));
-      }
-      const bin=atob(base64.trim()),bytes=new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+      const bytes=new Uint8Array(buffer);
       const wb=XLSX.read(bytes,{type:"array",cellFormula:false,cellNF:false,cellText:false});
       console.log("Sheets:",wb.SheetNames);
       document.getElementById("load-hint").textContent="Sheets: "+wb.SheetNames.join(" | ");

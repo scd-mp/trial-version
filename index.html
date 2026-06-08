@@ -1069,7 +1069,9 @@ function loadFromAppsScript(){
       console.log("Sheets:",wb.SheetNames);
       document.getElementById("load-hint").textContent="Sheets: "+wb.SheetNames.join(" | ");
       const n=parseWorkbook(wb);
-      setP(100);setTimeout(()=>{wrap.style.display="none";setP(0);overlay.classList.remove("active");},700);
+      setP(100);setTimeout(()=>{wrap.style.display="none";setP(0);overlay.classList.remove("active");
+        if(typeof startTour==="function") setTimeout(startTour,800);
+      },700);
       document.getElementById("load-bar").classList.add("loaded");
       document.getElementById("load-status").textContent="✓ Live data — "+n+" districts loaded";
       if(typeof geojsonLayer!=="undefined"&&geojsonLayer)geojsonLayer.setStyle(districtStyle);
@@ -2392,6 +2394,7 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
     getEl("tour-overlay").style.display="block";
     showStep(0);
   }
+  window.startTour=startTour; // expose globally for loader callback
 
   function endTour(){
     getEl("tour-overlay").classList.remove("active");
@@ -2405,21 +2408,7 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 
   getEl("tour-skip").addEventListener("click",endTour);
 
-  // Start tour only after data loads successfully
-  function waitAndStart(){
-    const overlay=document.getElementById("load-overlay");
-    const loadBar=document.getElementById("load-bar");
-    const isLoaded=loadBar&&loadBar.classList.contains("loaded");
-    const overlayGone=!overlay||!overlay.classList.contains("active");
-    if(isLoaded&&overlayGone){
-      setTimeout(startTour,600);
-    } else {
-      setTimeout(waitAndStart,600);
-    }
-  }
-  document.addEventListener("DOMContentLoaded",function(){
-    setTimeout(waitAndStart,1000);
-  });
+  // Tour triggered directly from loadFromAppsScript after data loads
 })();
 </script>
 </body>

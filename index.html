@@ -364,7 +364,44 @@ header{background:linear-gradient(90deg,#1e3a5f,#2d5986);color:#fff;padding:12px
 button,label{font-family:var(--font-b);letter-spacing:.1px}
 
 /* Map legend label fix */
-/* ── Data-source tooltips ── */
+#map-source-footer{
+  position:absolute;bottom:0;left:0;right:0;
+  z-index:999;
+  background:rgba(30,58,95,0.88);
+  backdrop-filter:blur(4px);
+  padding:2px 14px;
+  font-size:10px;
+  font-weight:500;
+  color:rgba(255,255,255,0.75);
+  text-align:left;
+  letter-spacing:0.2px;
+  pointer-events:none;
+  border-top:1px solid rgba(45,89,134,0.6);
+  line-height:1.4;
+}
+/* Push Leaflet bottom-left controls (legend) above footer */
+.leaflet-bottom.leaflet-left{
+  bottom:22px;
+}
+/* ── Guided Tour ── */
+#tour-overlay{position:fixed;inset:0;z-index:99998;pointer-events:none;}
+#tour-overlay.active{pointer-events:all;}
+.tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99998;}
+.tour-spotlight{position:fixed;z-index:99999;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.55);pointer-events:none;transition:all 0.4s cubic-bezier(.4,0,.2,1);}
+.tour-card{position:fixed;z-index:100000;background:#fff;border-radius:14px;padding:22px 24px 18px;width:320px;box-shadow:0 8px 40px rgba(0,0,0,0.22);transition:all 0.4s cubic-bezier(.4,0,.2,1);}
+.tour-card .tour-step-badge{display:inline-block;background:#1a6faf;color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;margin-bottom:10px;letter-spacing:.5px;}
+.tour-card h3{margin:0 0 8px;font-size:15px;font-weight:700;color:#1e293b;}
+.tour-card p{margin:0 0 16px;font-size:13px;color:#475569;line-height:1.6;}
+.tour-card .tour-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.tour-card .tour-nav button{padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;}
+.tour-btn-skip{background:#f1f5f9;color:#64748b;}
+.tour-btn-skip:hover{background:#e2e8f0;}
+.tour-btn-next{background:#1a6faf;color:#fff;}
+.tour-btn-next:hover{background:#155d94;}
+.tour-dots{display:flex;gap:6px;align-items:center;}
+.tour-dot{width:7px;height:7px;border-radius:50%;background:#cbd5e1;transition:background .2s;}
+.tour-dot.active{background:#1a6faf;}
+
 #map-stat-overlay{position:absolute;top:10px;left:52px;display:flex;gap:8px;z-index:1000;pointer-events:none;}
 .map-stat-box{background:rgba(15,30,46,0.82);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:5px 12px;text-align:center;min-width:85px;}
 .map-stat-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:2px;}
@@ -437,6 +474,7 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
       <div class="map-stat-box"><div class="map-stat-lbl">On HU</div><div class="map-stat-val" id="mso-hu">—</div></div>
     </div>
     <div id="map-metric-label"><span class="hml-tag">Colouring map by</span><span id="map-metric-label-text"></span></div>
+    <div id="map-source-footer">Sources received from NHM, MP</div>
   </div>
 
   <!-- Collapsible table pane -->
@@ -449,12 +487,12 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
 
     <!-- FY 2025-26 Data tab -->
     <div class="tbl-tabs">
-      <button class="tbl-tab active" data-ttab="lld">FY 2025-26 Data<br><span style="font-size:9px;opacity:.55;font-weight:400">Screening: Apr 2025–Feb 2026 · Treatment/Disease LL: 23 Mar 2026</span></button>
+      <button class="tbl-tab active" data-ttab="lld">FY 2025-26 Data</button>
     </div>
 
     <!-- FY 2025-26 Data metric bar -->
     <div class="tbl-metric-bar" id="tmetric-lld">
-      <div class="mb-label">Sort &amp; colour map by — FY 2025-26 Data &middot; Screening: Apr 2025–Feb 2026 &middot; Treatment/Disease LL: 23 Mar 2026</div>
+      <div class="mb-label">Sort &amp; colour map by — FY 2025-26 Data</div>
       <div class="mb-broad-row">
         <button class="mb-broad" data-broad="all-lld">All</button>
         <button class="mb-broad active" data-broad="coverage">Screening Coverage</button>
@@ -465,7 +503,7 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
         <button class="mb-btn mb-sub active" data-metric="total_screen_pct">Total Screening Coverage (%)</button>
         <button class="mb-btn mb-sub" data-metric="u5_pct">Under-5 (%)</button>
         <button class="mb-btn mb-sub" data-metric="s540_pct">Other age group (%)</button>
-        <button class="mb-btn mb-sub" data-metric="anc_pct" title="Source: ANMOL Preg · Apr–Oct 2025">ANC (%) ✱</button>
+        <button class="mb-btn mb-sub" data-metric="anc_pct">ANC (%)</button>
       </div>
       <div class="mb-sub-row" id="sub-scd-ll" style="display:none">
         <button class="mb-btn mb-sub" data-metric="scd_diagnosed" data-rawsort="scd_diagnosed">Disease Positive (#)</button>
@@ -553,7 +591,7 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
 <style>
 /* ── Show Trend Button ── */
 #show-trend-btn{
-  display:block;position:absolute;bottom:14px;right:14px;z-index:1000;
+  display:block;position:absolute;bottom:30px;right:14px;z-index:1000;
   background:#0f1e2e;color:#fff;border:none;border-radius:4px;
   padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;
   box-shadow:0 2px 8px rgba(15,30,46,.35);letter-spacing:.3px;transition:background .15s;
@@ -1204,7 +1242,7 @@ const METRICS_MAP={
     rawFn:(dt)=>dt.actual_u5!=null&&dt.target_u5!=null?`${fmt(dt.actual_u5)} / ${fmt(dt.target_u5)}`:null},
   s540_pct:{label:"Other age group Screening (%)",abs:"s540_abs",
     rawFn:(dt)=>dt.actual_540!=null&&dt.target_540!=null?`${fmt(dt.actual_540)} / ${fmt(dt.target_540)}`:null},
-  anc_pct:{label:"ANC Screening (%) · Source: ANMOL Preg · Apr–Oct 2025",abs:"anc_abs",
+  anc_pct:{label:"ANC Screening (%)",abs:"anc_abs",
     rawFn:(dt)=>dt.actual_anc!=null&&dt.target_anc!=null?`${fmt(dt.actual_anc)} / ${fmt(dt.target_anc)}`:null},
   scd_diagnosed:{label:"Disease Positive (#)",abs:"",rawFn:(dt)=>null,detailPct:null},
   hu_pct:{label:"Initiated on HU (%)",abs:"hu_abs",
@@ -1643,7 +1681,7 @@ function renderScorecard(rawName,d,isMp){
 
   <!-- TABS -->
   <div class="sc-tabs">
-    <div class="sc-tab active" onclick="scSwitchTab(this,'sc-tab-a')">📋 FY 2025-26 Data<br><span style="font-size:8px;opacity:.55;font-weight:400">Screening: Apr 2025–Feb 2026 · Disease & Treatment LL: 23 Mar 2026</span></div>
+    <div class="sc-tab active" onclick="scSwitchTab(this,'sc-tab-a')">📋 FY 2025-26 Data</div>
   </div>
 
     <!-- TAB A: FY 2025-26 DATA -->
@@ -1668,7 +1706,7 @@ function renderScorecard(rawName,d,isMp){
       </div>
     </div>
 
-    ${sec("Screening Coverage vs Target","#2980b9","Screening Data · Apr 2025–Feb 2026<br>ANC: ANMOL Preg · Apr–Oct 2025")}
+    ${sec("Screening Coverage vs Target","#2980b9","")}
     <div class="cards-grid">
       ${(()=>{
         const tgt=(dt.target_u5||0)+(dt.target_540||0)+(dt.target_anc||0);
@@ -1680,10 +1718,10 @@ function renderScorecard(rawName,d,isMp){
     </div>
     <div class="cards-grid three">
       ${(()=>{const u5Pct=dt.actual_u5!=null&&dt.target_u5>0?Math.round(dt.actual_u5/dt.target_u5*100):parsePct(p.u5_pct);const u5PctStr=u5Pct!==null?u5Pct+"%":"—";const u5Raw=dt.actual_u5!=null&&dt.target_u5!=null?`${fmt(dt.actual_u5)} / ${fmt(dt.target_u5)}`:null;return card("U-5 Screening",u5PctStr,u5PctStr,"",u5Raw,"u5_pct");})()}
-      ${(()=>{const ancPct=dt.actual_anc!=null&&dt.target_anc>0?Math.round(dt.actual_anc/dt.target_anc*100):parsePct(p.anc_pct);const ancPctStr=ancPct!==null?ancPct+"%":"—";const ancRaw=dt.actual_anc!=null&&dt.target_anc!=null?`${fmt(dt.actual_anc)} / ${fmt(dt.target_anc)}`:null;return card("ANC Screening · ANMOL Preg · Apr–Oct 2025",ancPctStr,ancPctStr,"",ancRaw,"anc_pct");})()}
+      ${(()=>{const ancPct=dt.actual_anc!=null&&dt.target_anc>0?Math.round(dt.actual_anc/dt.target_anc*100):parsePct(p.anc_pct);const ancPctStr=ancPct!==null?ancPct+"%":"—";const ancRaw=dt.actual_anc!=null&&dt.target_anc!=null?`${fmt(dt.actual_anc)} / ${fmt(dt.target_anc)}`:null;return card("ANC Screening",ancPctStr,ancPctStr,"",ancRaw,"anc_pct");})()}
       ${(()=>{const s540Pct=dt.actual_540!=null&&dt.target_540>0?Math.round(dt.actual_540/dt.target_540*100):parsePct(p.s540_pct);const s540PctStr=s540Pct!==null?s540Pct+"%":"—";const s540Raw=dt.actual_540!=null&&dt.target_540!=null?`${fmt(dt.actual_540)} / ${fmt(dt.target_540)}`:null;return card("Other age group Screening",s540PctStr,s540PctStr,"",s540Raw,"s540_pct");})()}
     </div>
-    ${sec("Treatment Initiation","#c0392b","Treatment Line List · 23 Mar 2026 · Vaccine: 1 Dec 2025")}
+    ${sec("Treatment Initiation","#c0392b","")}
     <div class="cards-grid three">
       ${(()=>{const huLLPct=dt.ll_scd_initiated_hu!=null&&dt.ll_scd_diagnosed>0?Math.round(dt.ll_scd_initiated_hu/dt.ll_scd_diagnosed*100):parsePct(dt.ll_pct_initiated_hu);const huLLPctStr=huLLPct!==null?huLLPct+"%":"—";const huLLRaw=dt.ll_scd_initiated_hu!=null&&dt.ll_scd_diagnosed!=null?`${fmt(dt.ll_scd_initiated_hu)} / ${fmt(dt.ll_scd_diagnosed)}`:null;return card("On HU",huLLPctStr,huLLPctStr,"",huLLRaw,"hu_pct");})()}
       ${(()=>{const faPct=dt.fa_unique_total!=null&&dt.ll_scd_diagnosed>0?Math.round(dt.fa_unique_total/dt.ll_scd_diagnosed*100):parsePct(dt.pct_fa_all);const faPctStr=faPct!==null?faPct+"%":"—";const faRaw=dt.fa_unique_total!=null&&dt.ll_scd_diagnosed!=null?`${fmt(dt.fa_unique_total)} / ${fmt(dt.ll_scd_diagnosed)}`:null;return card("On FA",faPctStr,faPctStr,"",faRaw,"fa_pct");})()}
@@ -1691,7 +1729,7 @@ function renderScorecard(rawName,d,isMp){
     </div>
 
 
-    <div class="sc-foot">Source: FY 2025-26 Data · Screening: Apr 2025–Feb 2026 · Treatment &amp; Disease LL: 23 Mar 2026</div>
+    <div class="sc-foot">Sources received from NHM, MP</div>
   </div>`;
 
   sc.innerHTML=html;
@@ -1972,7 +2010,7 @@ const METRIC_DISPLAY_NAMES = {
   "total_screen_pct"     : "Total Screening Coverage (%)",
   "u5_pct"               : "U-5 Screening",
   "s540_pct"             : "Other age group Screening",
-  "anc_pct"              : "ANC Screening · ANMOL Preg · Apr–Oct 2025",
+  "anc_pct"              : "ANC Screening",
   "scd_diagnosed"        : "Disease Positive",
   "hu_pct"               : "On HU",
   "fa_pct"               : "On FA",
@@ -2246,10 +2284,140 @@ document.addEventListener('DOMContentLoaded', () => {
   hookTableTooltips();
 });
 
+
 // Re-hook table whenever tab buttons are clicked (table re-renders)
 document.querySelectorAll('.tbl-tab').forEach(btn => {
   btn.addEventListener('click', () => setTimeout(hookTableTooltips, 50));
 });
+</script>
+
+<!-- ── GUIDED TOUR ── -->
+<div id="tour-overlay">
+  <div class="tour-spotlight" id="tour-spotlight"></div>
+  <div class="tour-card" id="tour-card">
+    <div class="tour-step-badge" id="tour-badge">STEP 1 OF 5</div>
+    <h3 id="tour-title"></h3>
+    <p id="tour-desc"></p>
+    <div class="tour-nav">
+      <button class="tour-btn-skip" id="tour-skip">Skip Tour</button>
+      <div class="tour-dots" id="tour-dots"></div>
+      <button class="tour-btn-next" id="tour-next">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STEPS=[
+    {
+      title:"🗺️ District Heatmap",
+      desc:"This map shows all districts of Madhya Pradesh colour-coded by performance. Darker green means better coverage. Click any district to see its detailed scorecard on the right.",
+      target:"map",
+      position:"right"
+    },
+    {
+      title:"📋 District Scorecard",
+      desc:"When you click a district on the map, its detailed scorecard appears here — showing screening targets vs actuals, disease positivity, and treatment initiation rates.",
+      target:"panel",
+      position:"left"
+    },
+    {
+      title:"📊 District Comparison Table",
+      desc:"Click 'Show Table' to compare all districts side by side. Sort by any metric to quickly identify top and bottom performing districts across the state.",
+      target:"show-table-btn",
+      position:"bottom"
+    },
+    {
+      title:"📈 District Trend Panel",
+      desc:"Click 'Trend Panel' to see month-by-month screening and disease trends for any district. Helps track progress over time and spot seasonal patterns.",
+      target:"show-trend-btn",
+      position:"top"
+    }
+  ];
+
+  let current=0;
+
+  function getEl(id){return document.getElementById(id);}
+
+  function getRect(id){
+    const el=document.getElementById(id)||document.querySelector('.'+id)||document.querySelector('#'+id);
+    if(!el)return null;
+    return el.getBoundingClientRect();
+  }
+
+  function positionSpotlight(rect){
+    if(!rect)return;
+    const pad=10;
+    const sl=getEl("tour-spotlight");
+    sl.style.left=(rect.left-pad)+"px";
+    sl.style.top=(rect.top-pad)+"px";
+    sl.style.width=(rect.width+pad*2)+"px";
+    sl.style.height=(rect.height+pad*2)+"px";
+  }
+
+  function positionCard(rect,position){
+    const card=getEl("tour-card");
+    const cw=330,ch=220,margin=18;
+    const vw=window.innerWidth,vh=window.innerHeight;
+    let left,top;
+    if(!rect){left=vw/2-cw/2;top=vh/2-ch/2;}
+    else if(position==="right"){left=Math.min(rect.right+margin,vw-cw-10);top=Math.max(rect.top,10);}
+    else if(position==="left"){left=Math.max(rect.left-cw-margin,10);top=Math.max(rect.top,10);}
+    else if(position==="bottom"){left=Math.max(Math.min(rect.left,vw-cw-10),10);top=Math.min(rect.bottom+margin,vh-ch-10);}
+    else if(position==="top"){left=Math.max(Math.min(rect.right-cw,vw-cw-10),10);top=Math.max(rect.top-ch-margin-60,10);}
+    card.style.left=left+"px";
+    card.style.top=top+"px";
+  }
+
+  function renderDots(){
+    const dots=getEl("tour-dots");
+    dots.innerHTML=STEPS.map((_,i)=>`<div class="tour-dot${i===current?' active':''}"></div>`).join("");
+  }
+
+  function showStep(i){
+    const step=STEPS[i];
+    getEl("tour-badge").textContent=`STEP ${i+1} OF ${STEPS.length}`;
+    getEl("tour-title").textContent=step.title;
+    getEl("tour-desc").textContent=step.desc;
+    getEl("tour-next").textContent=i===STEPS.length-1?"Got it! ✓":"Next →";
+    renderDots();
+    const rect=getRect(step.target);
+    positionSpotlight(rect);
+    positionCard(rect,step.position);
+  }
+
+  function startTour(){
+    current=0;
+    getEl("tour-overlay").classList.add("active");
+    getEl("tour-overlay").style.display="block";
+    showStep(0);
+  }
+
+  function endTour(){
+    getEl("tour-overlay").classList.remove("active");
+    getEl("tour-overlay").style.display="none";
+  }
+
+  getEl("tour-next").addEventListener("click",function(){
+    if(current<STEPS.length-1){current++;showStep(current);}
+    else{endTour();}
+  });
+
+  getEl("tour-skip").addEventListener("click",endTour);
+
+  // Start tour after data loads (wait for load overlay to disappear)
+  function waitAndStart(){
+    const overlay=document.getElementById("load-overlay");
+    if(overlay&&overlay.classList.contains("active")){
+      setTimeout(waitAndStart,500);
+    } else {
+      setTimeout(startTour,800);
+    }
+  }
+  document.addEventListener("DOMContentLoaded",function(){
+    setTimeout(waitAndStart,1000);
+  });
+})();
 </script>
 </body>
 </html>

@@ -1070,7 +1070,8 @@ function loadFromAppsScript(){
       document.getElementById("load-hint").textContent="Sheets: "+wb.SheetNames.join(" | ");
       const n=parseWorkbook(wb);
       setP(100);setTimeout(()=>{wrap.style.display="none";setP(0);overlay.classList.remove("active");
-        if(typeof startTour==="function") setTimeout(startTour,800);
+        // Dispatch event so tour script can listen — works regardless of script order
+        document.dispatchEvent(new CustomEvent("dataLoaded"));
       },700);
       document.getElementById("load-bar").classList.add("loaded");
       document.getElementById("load-status").textContent="✓ Live data — "+n+" districts loaded";
@@ -2294,7 +2295,7 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 </script>
 
 <!-- ── GUIDED TOUR ── -->
-<div id="tour-overlay">
+<div id="tour-overlay" style="display:none">
   <div class="tour-spotlight" id="tour-spotlight"></div>
   <div class="tour-card" id="tour-card">
     <div class="tour-step-badge" id="tour-badge">STEP 1 OF 5</div>
@@ -2394,7 +2395,7 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
     getEl("tour-overlay").style.display="block";
     showStep(0);
   }
-  window.startTour=startTour; // expose globally for loader callback
+  window.startTour=startTour;
 
   function endTour(){
     getEl("tour-overlay").classList.remove("active");
@@ -2408,7 +2409,10 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 
   getEl("tour-skip").addEventListener("click",endTour);
 
-  // Tour triggered directly from loadFromAppsScript after data loads
+  // Listen for dataLoaded event fired by the loader after overlay clears
+  document.addEventListener("dataLoaded",function(){
+    setTimeout(startTour,600);
+  });
 })();
 </script>
 </body>

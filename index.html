@@ -2405,13 +2405,16 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 
   getEl("tour-skip").addEventListener("click",endTour);
 
-  // Start tour after data loads (wait for load overlay to disappear)
+  // Start tour only after data loads successfully
   function waitAndStart(){
     const overlay=document.getElementById("load-overlay");
-    if(overlay&&overlay.classList.contains("active")){
-      setTimeout(waitAndStart,500);
+    const loadBar=document.getElementById("load-bar");
+    const isLoaded=loadBar&&loadBar.classList.contains("loaded");
+    const overlayGone=!overlay||!overlay.classList.contains("active");
+    if(isLoaded&&overlayGone){
+      setTimeout(startTour,600);
     } else {
-      setTimeout(startTour,800);
+      setTimeout(waitAndStart,600);
     }
   }
   document.addEventListener("DOMContentLoaded",function(){

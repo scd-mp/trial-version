@@ -487,12 +487,12 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
 
     <!-- FY 2025-26 Data tab -->
     <div class="tbl-tabs">
-      <button class="tbl-tab active" data-ttab="lld">FY 2025-26 Data</button>
+      <button class="tbl-tab active" data-ttab="lld">District Data</button>
     </div>
 
     <!-- FY 2025-26 Data metric bar -->
     <div class="tbl-metric-bar" id="tmetric-lld">
-      <div class="mb-label">Sort &amp; colour map by — FY 2025-26 Data</div>
+      <div class="mb-label">Sort &amp; colour map by</div>
       <div class="mb-broad-row">
         <button class="mb-broad" data-broad="all-lld">All</button>
         <button class="mb-broad active" data-broad="coverage">Screening Coverage</button>
@@ -575,12 +575,12 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
   </div>
   <div id="trend-charts-area">
     <div class="t-card">
-      <div class="t-card-title">Monthly Screening Count by District</div>
+      <div class="t-card-title">Monthly Screening</div>
       <div class="t-card-sub">Count of Test Result · Trend_data sheet</div>
       <div class="t-canvas-wrap"><canvas id="chart-screening"></canvas></div>
     </div>
     <div class="t-card">
-      <div class="t-card-title">Monthly Disease Positive Count by District</div>
+      <div class="t-card-title">Monthly Diseased</div>
       <div class="t-card-sub">SCD (HbSS) Disease Count · Trend_data sheet</div>
       <div class="t-canvas-wrap"><canvas id="chart-disease"></canvas></div>
     </div>
@@ -935,9 +935,11 @@ function buildTrendDD(){
     const isMP=dist==='MADHYA PRADESH';
     const col=isMP?MP_COLOR:TREND_COLORS[(i-1+TREND_COLORS.length)%TREND_COLORS.length];
     const lbl=document.createElement('label');
+    const DISPLAY_REMAP_TREND={"EAST NIMAR":"KHANDWA"};
+    const distDisplay=DISPLAY_REMAP_TREND[dist]||dist;
     lbl.className='t-dd-item';lbl.dataset.name=dist;
     if(isMP) lbl.style.cssText='font-weight:700;background:#f0f4ff;border-bottom:1px solid #e2e8f0';
-    lbl.innerHTML=`<input type="checkbox" ${activeTrendDists.has(dist)?'checked':''} data-dist="${dist}"><span class="t-dd-swatch" style="background:${col};${isMP?'border:2px solid #0f1e2e':''};"></span>${isMP?'<strong>'+dist+'</strong>':dist}`;
+    lbl.innerHTML=`<input type="checkbox" ${activeTrendDists.has(dist)?'checked':''} data-dist="${dist}"><span class="t-dd-swatch" style="background:${col};${isMP?'border:2px solid #0f1e2e':''};"></span>${isMP?'<strong>'+distDisplay+'</strong>':distDisplay}`;
     lbl.querySelector('input').addEventListener('change',function(){
       if(this.checked)activeTrendDists.add(dist);else activeTrendDists.delete(dist);
       updateTrendCharts();updateTrendTrigger();
@@ -1563,7 +1565,8 @@ function buildRow(key,d,isMp,visibleMetrics){
   const dt=d.detail||{};
   const agg=d.agg||{};
   const cls=isMp?"mp-row":"";
-  const label=isMp?"Madhya Pradesh (State)":key.charAt(0)+key.slice(1).toLowerCase();
+  const TABLE_DISPLAY_REMAP={"EAST NIMAR":"Khandwa"};
+  const label=isMp?"Madhya Pradesh (State)":(TABLE_DISPLAY_REMAP[key]||(key.charAt(0)+key.slice(1).toLowerCase()));
 
   // Raw-sort columns handled separately since they are not in METRICS_MAP
   const RAW_COLS={
@@ -1684,7 +1687,7 @@ function renderScorecard(rawName,d,isMp){
 
   <!-- TABS -->
   <div class="sc-tabs">
-    <div class="sc-tab active" onclick="scSwitchTab(this,'sc-tab-a')">📋 FY 2025-26 Data</div>
+    <div class="sc-tab active" onclick="scSwitchTab(this,'sc-tab-a')">📋 District Scorecard</div>
   </div>
 
     <!-- TAB A: FY 2025-26 DATA -->
@@ -1798,7 +1801,9 @@ document.getElementById("show-table-btn").addEventListener("click",()=>{ openTab
       const raw=feature.properties.district||"";
       if(raw.startsWith("DISPUTED")){return;}
       const key=normalizeName(raw);
-      const display=raw.trim().toUpperCase();
+      // Frontend display name remapping (data keys unchanged)
+      const DISPLAY_REMAP={"EAST NIMAR":"KHANDWA"};
+      const display=DISPLAY_REMAP[raw.trim().toUpperCase()]||raw.trim().toUpperCase();
 
       function tooltipContent(){
         const d=DISTRICT_SCORECARD[key];
@@ -2298,13 +2303,16 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 <div id="tour-overlay" style="display:none">
   <div class="tour-spotlight" id="tour-spotlight"></div>
   <div class="tour-card" id="tour-card">
-    <div class="tour-step-badge" id="tour-badge">STEP 1 OF 5</div>
+    <div class="tour-step-badge" id="tour-badge">VIEW 1 OF 4</div>
     <h3 id="tour-title"></h3>
     <p id="tour-desc"></p>
     <div class="tour-nav">
       <button class="tour-btn-skip" id="tour-skip">Skip Tour</button>
       <div class="tour-dots" id="tour-dots"></div>
-      <button class="tour-btn-next" id="tour-next">Next →</button>
+      <div style="display:flex;gap:8px;">
+        <button class="tour-btn-next" id="tour-prev" style="background:#e2e8f0;color:#334155;">← Prev</button>
+        <button class="tour-btn-next" id="tour-next">Next →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2313,25 +2321,25 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 (function(){
   const STEPS=[
     {
-      title:"🗺️ District Heatmap",
-      desc:"This map shows all districts of Madhya Pradesh colour-coded by performance. Darker green means better coverage. Click any district to see its detailed scorecard on the right.",
+      title:"🗺️ Heatmap",
+      desc:"This map shows all districts of Madhya Pradesh colour-coded by performance. Darker green means better coverage; districts shaded red or orange indicate low coverage and need attention. Click any district to see its detailed scorecard on the right.",
       target:"map",
       position:"right"
     },
     {
-      title:"📋 District Scorecard",
+      title:"📋 Scorecard",
       desc:"When you click a district on the map, its detailed scorecard appears here — showing screening targets vs actuals, disease positivity, and treatment initiation rates.",
       target:"panel",
       position:"left"
     },
     {
-      title:"📊 District Comparison Table",
+      title:"📊 Comparison Table",
       desc:"Click 'Show Table' to compare all districts side by side. Sort by any metric to quickly identify top and bottom performing districts across the state.",
       target:"show-table-btn",
       position:"bottom"
     },
     {
-      title:"📈 District Trend Panel",
+      title:"📈 Trend Panel",
       desc:"Click 'Trend Panel' to see month-by-month screening and disease trends for any district. Helps track progress over time and spot seasonal patterns.",
       target:"show-trend-btn",
       position:"top"
@@ -2379,10 +2387,15 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 
   function showStep(i){
     const step=STEPS[i];
-    getEl("tour-badge").textContent=`STEP ${i+1} OF ${STEPS.length}`;
+    getEl("tour-badge").textContent=`VIEW ${i+1} OF ${STEPS.length}`;
     getEl("tour-title").textContent=step.title;
     getEl("tour-desc").textContent=step.desc;
     getEl("tour-next").textContent=i===STEPS.length-1?"Got it! ✓":"Next →";
+    // Prev button: disabled on step 0
+    const prevBtn=getEl("tour-prev");
+    prevBtn.disabled=(i===0);
+    prevBtn.style.opacity=(i===0)?"0.4":"1";
+    prevBtn.style.cursor=(i===0)?"not-allowed":"pointer";
     renderDots();
     const rect=getRect(step.target);
     positionSpotlight(rect);
@@ -2405,6 +2418,10 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
   getEl("tour-next").addEventListener("click",function(){
     if(current<STEPS.length-1){current++;showStep(current);}
     else{endTour();}
+  });
+
+  getEl("tour-prev").addEventListener("click",function(){
+    if(current>0){current--;showStep(current);}
   });
 
   getEl("tour-skip").addEventListener("click",endTour);

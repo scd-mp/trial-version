@@ -576,12 +576,10 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
   <div id="trend-charts-area">
     <div class="t-card">
       <div class="t-card-title">Monthly Screening</div>
-      <div class="t-card-sub">Count of Test Result · Trend_data sheet</div>
       <div class="t-canvas-wrap"><canvas id="chart-screening"></canvas></div>
     </div>
     <div class="t-card">
       <div class="t-card-title">Monthly Diseased</div>
-      <div class="t-card-sub">SCD (HbSS) Disease Count · Trend_data sheet</div>
       <div class="t-canvas-wrap"><canvas id="chart-disease"></canvas></div>
     </div>
   </div>
@@ -1642,7 +1640,8 @@ function renderScorecard(rawName,d,isMp){
   districtScorecardShowing=!isMp; // true when a district (not MP) is shown
   const sc=document.getElementById("scorecard");
   const p=d.perf||{}, dt=d.detail||{}, agg=d.agg||{};
-  const pretty=rawName.split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" ");
+  const SC_DISPLAY_REMAP={"EAST NIMAR":"Khandwa"};
+  const pretty=SC_DISPLAY_REMAP[rawName.toUpperCase()]||(rawName.split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" "));
 
   function card(label,absVal,pctStr,sub,rawStr,metricKey){
     const n=parsePct(pctStr);const color=pctColor(n);const barW=n!==null?n:0;
@@ -1685,13 +1684,8 @@ function renderScorecard(rawName,d,isMp){
     <div class="sc-dist-sub">${isMp?"State-Level Overview":"Madhya Pradesh · SCD Program"}</div>
   </div>
 
-  <!-- TABS -->
-  <div class="sc-tabs">
-    <div class="sc-tab active" onclick="scSwitchTab(this,'sc-tab-a')">📋 District Scorecard</div>
-  </div>
-
-    <!-- TAB A: FY 2025-26 DATA -->
-  <div class="sc-tab-content active" id="sc-tab-a">
+  <!-- TAB A: content shown directly -->
+  <div id="sc-tab-a">
     <!-- KPI strip -->
     <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
       <div class="kpi">
@@ -1847,14 +1841,16 @@ document.getElementById("show-table-btn").addEventListener("click",()=>{ openTab
   /* Permanent district labels */
   const lblPane=map.createPane("labels");
   lblPane.style.zIndex=450;lblPane.style.pointerEvents="none";
+  const MAP_LABEL_REMAP={"EAST NIMAR":"KHANDWA"};
   mpFeatures.forEach(feature=>{
     const raw=(feature.properties.district||"").trim();
     if(!raw||raw.startsWith("DISPUTED"))return;
     const lyr=L.geoJSON(feature);
     const center=lyr.getBounds().getCenter();
+    const labelText=MAP_LABEL_REMAP[raw]||raw;
     L.marker(center,{
       pane:"labels",
-      icon:L.divIcon({className:"dist-lbl",html:raw,iconAnchor:[0,6]}),
+      icon:L.divIcon({className:"dist-lbl",html:labelText,iconAnchor:[0,6]}),
       interactive:false
     }).addTo(map);
   });

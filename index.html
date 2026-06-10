@@ -1841,28 +1841,28 @@ function openTable(){
   tableVisible=true;
   const pane=document.getElementById("table-pane");
   pane.style.width="calc(100% - " + (document.getElementById("panel").offsetWidth) + "px)";
-  document.getElementById("map").style.width="0";
-  document.getElementById("map").style.minWidth="0";
-  document.getElementById("map").style.flex="0";
+  const mapEl=document.getElementById("map");
+  mapEl.style.width="0";
+  mapEl.style.minWidth="0";
+  mapEl.style.flex="0";
+  mapEl.style.overflow="hidden";
+  mapEl.style.visibility="hidden";
   document.getElementById("tbl-toggle").textContent="✕ Close Table";
   document.getElementById("show-table-btn").style.display="none";
-  // Hide map overlays when table takes over
-  document.getElementById("map-stat-overlay").style.display="none";
-  document.getElementById("tour-relaunch-btn").style.display="none";
   setTimeout(()=>map.invalidateSize(),300);
 }
 function closeTable(){
   tableVisible=false;
   const pane=document.getElementById("table-pane");
   pane.style.width="0";
-  document.getElementById("map").style.width="";
-  document.getElementById("map").style.minWidth="";
-  document.getElementById("map").style.flex="1";
+  const mapEl=document.getElementById("map");
+  mapEl.style.width="";
+  mapEl.style.minWidth="";
+  mapEl.style.flex="1";
+  mapEl.style.overflow="visible";
+  mapEl.style.visibility="visible";
   document.getElementById("tbl-toggle").textContent="☰ Open Table";
   document.getElementById("show-table-btn").style.display="block";
-  // Restore map overlays
-  document.getElementById("map-stat-overlay").style.display="flex";
-  document.getElementById("tour-relaunch-btn").style.display="flex";
   setTimeout(()=>map.invalidateSize(),300);
 }
 document.getElementById("tbl-toggle").addEventListener("click",()=>{

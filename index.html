@@ -574,11 +574,11 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
 
   <!-- Trend legend panel -->
   <div id="trend-legend-bar">
-    <div id="trend-legend-inner"></div>
-    <div id="trend-legend-nav">
-      <button id="trend-leg-up" onclick="trendLegNav(-1)" title="Previous row">▲</button>
+    <div id="trend-legend-inner">
+      <button id="trend-leg-up" onclick="trendLegNav(-1)" title="Previous">◀</button>
+      <div id="trend-legend-items"></div>
+      <button id="trend-leg-dn" onclick="trendLegNav(1)" title="Next">▶</button>
       <span id="trend-leg-page"></span>
-      <button id="trend-leg-dn" onclick="trendLegNav(1)" title="Next row">▼</button>
     </div>
   </div>
   <div id="trend-charts-area">
@@ -692,38 +692,36 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
 
 /* ── Trend Legend Bar ── */
 #trend-legend-bar{
-  display:flex;align-items:center;justify-content:center;gap:8px;
+  display:flex;align-items:center;justify-content:center;
   padding:6px 18px;background:#f1f5f9;
   border-bottom:1px solid #e2e8f0;flex-shrink:0;min-height:36px;
-  position:relative;
 }
 #trend-legend-inner{
-  display:flex;flex-wrap:nowrap;gap:6px;
+  display:flex;flex-wrap:nowrap;gap:0;
   align-items:center;justify-content:center;
   background:#fff;border:1px solid #e2e8f0;border-radius:20px;
-  padding:3px 12px;box-shadow:0 1px 4px rgba(15,23,42,.07);
-  max-width:calc(100% - 80px);overflow:hidden;
+  padding:3px 6px;box-shadow:0 1px 4px rgba(15,23,42,.07);
+  max-width:90%;overflow:hidden;
+}
+#trend-legend-items{
+  display:flex;align-items:center;gap:0;overflow:hidden;
 }
 .t-leg-item{
   display:flex;align-items:center;gap:5px;
   font-size:10px;color:#334155;white-space:nowrap;
+  padding:2px 10px;
 }
 .t-leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .t-leg-name{font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
-.t-leg-item+.t-leg-item{border-left:1px solid #e2e8f0;padding-left:10px;margin-left:4px;}
-#trend-legend-nav{
-  display:flex;align-items:center;gap:4px;flex-shrink:0;
-  position:absolute;right:18px;top:50%;transform:translateY(-50%);
+.t-leg-item+.t-leg-item{border-left:1px solid #e2e8f0;}
+#trend-legend-inner button{
+  background:none;border:none;color:#94a3b8;
+  font-size:9px;cursor:pointer;padding:2px 5px;
+  transition:color .12s;flex-shrink:0;line-height:1;
 }
-#trend-legend-nav button{
-  background:#e2e8f0;border:1px solid #cbd5e1;color:#475569;
-  width:22px;height:22px;border-radius:4px;font-size:10px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:background .12s;padding:0;
-}
-#trend-legend-nav button:hover:not(:disabled){background:#cbd5e1;color:#1e293b;}
-#trend-legend-nav button:disabled{opacity:.35;cursor:not-allowed;}
-#trend-leg-page{font-size:9px;color:#64748b;min-width:28px;text-align:center;}
+#trend-legend-inner button:hover:not(:disabled){color:#1e293b;}
+#trend-legend-inner button:disabled{opacity:.25;cursor:not-allowed;}
+#trend-leg-page{font-size:9px;color:#94a3b8;padding:0 4px;white-space:nowrap;}
 
 /* ── Charts area ── */
 #trend-charts-area{
@@ -1060,7 +1058,7 @@ const TREND_LEG_PER_ROW=5;
 let trendLegPage=0;
 
 function updateTrendLegend(){
-  const inner=document.getElementById('trend-legend-inner');
+  const inner=document.getElementById('trend-legend-items');
   const upBtn=document.getElementById('trend-leg-up');
   const dnBtn=document.getElementById('trend-leg-dn');
   const pageEl=document.getElementById('trend-leg-page');
@@ -1076,13 +1074,10 @@ function updateTrendLegend(){
     const col=isMP?MP_COLOR:TREND_COLORS[(idx-1+TREND_COLORS.length)%TREND_COLORS.length];
     const name=DISPLAY_REMAP_TREND[dist]||dist;
     return `<div class="t-leg-item"><div class="t-leg-dot" style="background:${col};${isMP?'border:2px solid #0f1e2e':''}"></div><span class="t-leg-name">${name}</span></div>`;
-  }).join('')||'<span style="font-size:10px;color:#94a3b8;">No districts selected</span>';
+  }).join('')||'<span style="font-size:10px;color:#94a3b8;padding:0 8px;">No districts selected</span>';
   if(pageEl)pageEl.textContent=totalPages>1?`${trendLegPage+1}/${totalPages}`:'';
-  if(upBtn)upBtn.disabled=trendLegPage===0;
-  if(dnBtn)dnBtn.disabled=trendLegPage>=totalPages-1;
-  // Hide nav if only 1 page
-  const nav=document.getElementById('trend-legend-nav');
-  if(nav)nav.style.display=totalPages>1?'flex':'none';
+  if(upBtn){upBtn.disabled=trendLegPage===0;upBtn.style.display=totalPages>1?'':'none';}
+  if(dnBtn){dnBtn.disabled=trendLegPage>=totalPages-1;dnBtn.style.display=totalPages>1?'':'none';}
 }
 function trendLegNav(dir){
   const active=[...activeTrendDists];

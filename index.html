@@ -1840,13 +1840,15 @@ let tableVisible=false;
 function openTable(){
   tableVisible=true;
   const pane=document.getElementById("table-pane");
-  // Take full map width — map div shrinks to 0
   pane.style.width="calc(100% - " + (document.getElementById("panel").offsetWidth) + "px)";
   document.getElementById("map").style.width="0";
   document.getElementById("map").style.minWidth="0";
   document.getElementById("map").style.flex="0";
   document.getElementById("tbl-toggle").textContent="✕ Close Table";
   document.getElementById("show-table-btn").style.display="none";
+  // Hide map overlays when table takes over
+  document.getElementById("map-stat-overlay").style.display="none";
+  document.getElementById("tour-relaunch-btn").style.display="none";
   setTimeout(()=>map.invalidateSize(),300);
 }
 function closeTable(){
@@ -1858,6 +1860,9 @@ function closeTable(){
   document.getElementById("map").style.flex="1";
   document.getElementById("tbl-toggle").textContent="☰ Open Table";
   document.getElementById("show-table-btn").style.display="block";
+  // Restore map overlays
+  document.getElementById("map-stat-overlay").style.display="flex";
+  document.getElementById("tour-relaunch-btn").style.display="flex";
   setTimeout(()=>map.invalidateSize(),300);
 }
 document.getElementById("tbl-toggle").addEventListener("click",()=>{

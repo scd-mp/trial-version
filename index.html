@@ -432,7 +432,7 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
 
 <!-- ── DUMMY-DATA DISCLAIMER MODAL ── -->
 <style>
-#dummy-modal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(15,30,46,.62);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px}
+#dummy-modal{display:none;position:fixed;inset:0;z-index:100100;background:rgba(15,30,46,.62);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px}
 #dummy-modal.show{display:flex}
 .dummy-modal-card{background:#fff;border-radius:14px;max-width:440px;width:100%;box-shadow:0 18px 50px rgba(15,23,42,.35);overflow:hidden;border-top:4px solid var(--accent);animation:dmpop .25s ease}
 @keyframes dmpop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
@@ -452,17 +452,27 @@ button,label{font-family:var(--font-b);letter-spacing:.1px}
     </div>
     <div class="dummy-modal-body">
       <p><strong>This is a demonstration dashboard.</strong></p>
-      <p>All figures shown — screening counts, disease positivity, treatment rates and every other metric — are <strong>illustrative dummy values</strong> used for layout and demo purposes only.</p>
+      <p>All figures shown, including screening counts, disease positivity, treatment rates and every other metric, are <strong>illustrative dummy values</strong> used for layout and demo purposes only.</p>
       <p>They do <strong>not</strong> represent actual data from the Madhya Pradesh Sickle Cell Disease Program and must not be used for reporting, planning, or decision-making.</p>
     </div>
-    <button class="dummy-modal-btn" id="dummy-modal-ok">I understand &mdash; continue</button>
+    <button class="dummy-modal-btn" id="dummy-modal-ok">I understand</button>
   </div>
 </div>
 <script>
 (function(){
+  window.__dummyAck = false;
   var m=document.getElementById('dummy-modal');
   function show(){ if(m) m.classList.add('show'); }
-  function hide(){ if(m) m.classList.remove('show'); }
+  function hide(){
+    if(m) m.classList.remove('show');
+    window.__dummyAck = true;
+    // If the tour was waiting on the disclaimer, start it now.
+    if(typeof window.__startTourAfterAck === 'function'){
+      var f = window.__startTourAfterAck;
+      window.__startTourAfterAck = null;
+      f();
+    }
+  }
   var ok=document.getElementById('dummy-modal-ok');
   if(ok) ok.addEventListener('click',hide);
   if(document.readyState==='loading'){
@@ -2556,7 +2566,10 @@ document.querySelectorAll('.tbl-tab').forEach(btn => {
 
   // Listen for dataLoaded event fired by the loader after overlay clears
   document.addEventListener("dataLoaded",function(){
-    setTimeout(startTour,600);
+    function go(){ setTimeout(startTour,600); }
+    // Don't start the tour until the dummy-data disclaimer is acknowledged.
+    if(window.__dummyAck){ go(); }
+    else { window.__startTourAfterAck = go; }
   });
 })();
 </script>
